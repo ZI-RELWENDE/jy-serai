@@ -63,9 +63,6 @@ export default function EditorPage() {
     }
   }, [state, frameId, frameTitle]);
 
-  const displayW = 420;
-  const displayH = Math.round(420 * aspectRatio);
-
   if (loading) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#0a0a0a", color: "#888", fontFamily: "sans-serif" }}>
       Chargement...
@@ -74,24 +71,53 @@ export default function EditorPage() {
 
   return (
     <main style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "sans-serif" }}>
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 32px", borderBottom: "0.5px solid #222" }}>
+      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: "0.5px solid #222" }}>
         <a href="/galerie" style={{ color: "#9B6FD4", textDecoration: "none", fontSize: 14 }}>← Galerie</a>
         <span style={{ fontWeight: 600, fontSize: 16 }}>{frameTitle}</span>
         <div style={{ width: 60 }} />
       </header>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 24, padding: "24px 32px", alignItems: "start" }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-          <canvas ref={canvasRef} style={{ width: displayW, height: displayH, maxWidth: "100%", borderRadius: 8, background: "#111", display: "block" }} />
-          <label style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, cursor: "pointer", border: "0.5px solid #333", fontSize: 14, color: "#fff" }}>
+
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "20px 16px" }}>
+        
+        {/* Canvas centré */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 24 }}>
+          <canvas ref={canvasRef} style={{
+            width: "100%",
+            maxWidth: 380,
+            height: "auto",
+            aspectRatio: `1 / ${aspectRatio}`,
+            borderRadius: 8,
+            background: "#111",
+            display: "block"
+          }} />
+          <label style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            gap: 8, padding: "12px 24px", borderRadius: 8, cursor: "pointer",
+            border: "0.5px solid #333", fontSize: 14, color: "#fff", width: "100%", maxWidth: 380, boxSizing: "border-box"
+          }}>
             Ajouter ma photo
             <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: "none" }} />
           </label>
           <button onClick={handleDownload} disabled={exporting || !state.photoUrl}
-            style={{ width: "100%", maxWidth: displayW, padding: "12px 0", borderRadius: 8, fontSize: 15, fontWeight: 500, cursor: "pointer", background: "#6B3FA0", color: "#fff", border: "none", opacity: exporting || !state.photoUrl ? 0.5 : 1 }}>
+            style={{
+              width: "100%", maxWidth: 380, padding: "14px 0", borderRadius: 8,
+              fontSize: 15, fontWeight: 600, cursor: "pointer",
+              background: "#6B3FA0", color: "#fff", border: "none",
+              opacity: exporting || !state.photoUrl ? 0.5 : 1,
+              boxSizing: "border-box"
+            }}>
             {exporting ? "Export en cours..." : "Telecharger mon visuel"}
           </button>
         </div>
-        <AdjustmentPanel />
+
+        {/* Panneau ajustements en dessous */}
+        <div style={{
+          background: "#111", border: "0.5px solid #222",
+          borderRadius: 12, padding: "20px 16px"
+        }}>
+          <AdjustmentPanel />
+        </div>
+
       </div>
     </main>
   );
