@@ -8,7 +8,7 @@ export default function NouveauCadrePage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(true);
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -33,8 +33,8 @@ export default function NouveauCadrePage() {
       });
       if (dbError) throw dbError;
       router.push("/dashboard");
-    } catch (e) {
-      setError(e.message ?? "Erreur inconnue");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Erreur inconnue");
     } finally {
       setLoading(false);
     }
