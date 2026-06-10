@@ -3,6 +3,10 @@
 export const metadata: Metadata = {
   title: "Jy Serai - Cadres evenementiels",
   description: "Cree ton visuel evenementiel en 30 secondes",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

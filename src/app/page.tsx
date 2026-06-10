@@ -4,7 +4,7 @@ export default function HomePage() {
   return (
     <main style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "sans-serif" }}>
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 40px", borderBottom: "0.5px solid #222" }}>
-        <span style={{ fontWeight: 700, fontSize: 22 }}>Jy Serai</span>
+        <img src="/logo.png" alt="Jy Serai" style={{ height: 40 }} />
         <div style={{ display: "flex", gap: 12 }}>
           <Link href="/login" style={{ color: "#aaa", textDecoration: "none", fontSize: 14, padding: "8px 16px" }}>Connexion</Link>
           <Link href="/register" style={{ background: "#6B3FA0", color: "#fff", textDecoration: "none", fontSize: 14, padding: "8px 18px", borderRadius: 8 }}>Creer un compte</Link>
