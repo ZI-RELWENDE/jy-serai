@@ -1,4 +1,5 @@
 ﻿"use client";
+import { useState } from "react";
 import { useEditorStore } from "@/store/editorStore";
 
 interface SliderProps {
@@ -27,10 +28,7 @@ function Slider({ label, id, min, max, value, unit = "", onChange }: SliderProps
         }} />
         <input id={id} type="range" min={min} max={max} step={1} value={value}
           onChange={(e) => onChange(Number(e.target.value))}
-          style={{
-            position: "absolute", inset: 0, width: "100%", height: "100%",
-            opacity: 0, cursor: "pointer", margin: 0
-          }} />
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer", margin: 0 }} />
       </div>
     </div>
   );
@@ -50,12 +48,53 @@ function ToggleBtn({ active, onClick, icon, label }: ToggleBtnProps) {
       padding: "10px 14px", borderRadius: 99, border: "none", cursor: "pointer",
       background: active ? "linear-gradient(135deg, #6B3FA0, #9B6FD4)" : "#1a1a1a",
       color: active ? "#fff" : "#888",
-      fontSize: 11, fontWeight: 500, transition: "all .2s", minWidth: 56,
+      fontSize: 11, fontWeight: 500, minWidth: 56,
       boxShadow: active ? "0 0 12px rgba(107,63,160,0.5)" : "none"
     }}>
       <i className={`ti ${icon}`} style={{ fontSize: 18 }} aria-hidden="true" />
       {label}
     </button>
+  );
+}
+
+function ColorPicker({ value, onChange }: { value: string; onChange: (c: string) => void }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div style={{ position: "relative" }}>
+      <button onClick={() => setOpen(!open)} style={{
+        display: "flex", alignItems: "center", gap: 10,
+        padding: "10px 16px", borderRadius: 99, border: "0.5px solid #333",
+        background: "#1a1a1a", cursor: "pointer", width: "100%"
+      }}>
+        <div style={{ width: 24, height: 24, borderRadius: "50%", background: value, border: "2px solid #444", flexShrink: 0 }} />
+        <span style={{ color: "#aaa", fontSize: 13 }}>Couleur du texte</span>
+        <span style={{ color: "#9B6FD4", fontSize: 12, marginLeft: "auto", fontFamily: "monospace" }}>{value.toUpperCase()}</span>
+        <i className="ti ti-chevron-down" style={{ fontSize: 14, color: "#666" }} aria-hidden="true" />
+      </button>
+
+      {open && (
+        <div style={{
+          marginTop: 8, background: "#1a1a1a", border: "0.5px solid #333",
+          borderRadius: 16, padding: 16, display: "flex", flexDirection: "column", gap: 12
+        }}>
+          <input type="color" value={value} onChange={(e) => onChange(e.target.value)}
+            style={{ width: "100%", height: 180, border: "none", borderRadius: 12, cursor: "pointer", background: "none", padding: 0 }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: value, border: "2px solid #444", flexShrink: 0 }} />
+            <input type="text" value={value} onChange={(e) => { if (/^#[0-9A-Fa-f]{0,6}$/.test(e.target.value)) onChange(e.target.value); }}
+              style={{ flex: 1, background: "#111", border: "0.5px solid #444", borderRadius: 99, padding: "8px 14px", color: "#fff", fontSize: 13, fontFamily: "monospace" }} />
+          </div>
+          <button onClick={() => setOpen(false)} style={{
+            padding: "9px", borderRadius: 99, border: "none",
+            background: "linear-gradient(135deg, #6B3FA0, #9B6FD4)",
+            color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer"
+          }}>
+            Confirmer
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -71,7 +110,6 @@ export default function AdjustmentPanel() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20, padding: "4px 0" }}>
 
-      {/* Boutons de forme */}
       <div>
         <p style={{ fontSize: 11, color: "#666", letterSpacing: "0.05em", textTransform: "uppercase", margin: "0 0 10px" }}>Forme & Orientation</p>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -82,7 +120,6 @@ export default function AdjustmentPanel() {
         </div>
       </div>
 
-      {/* Transformations */}
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <p style={{ fontSize: 11, color: "#666", letterSpacing: "0.05em", textTransform: "uppercase", margin: 0 }}>Transformation</p>
         <Slider label="Taille" id="scale" min={20} max={200} value={scale} unit="%" onChange={setScale} />
@@ -91,26 +128,19 @@ export default function AdjustmentPanel() {
         <Slider label="Rotation" id="rotation" min={-180} max={180} value={rotation} unit="°" onChange={setRotation} />
       </div>
 
-      {/* Couleurs */}
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <p style={{ fontSize: 11, color: "#666", letterSpacing: "0.05em", textTransform: "uppercase", margin: 0 }}>Couleurs</p>
         <Slider label="Luminosite" id="brightness" min={50} max={150} value={brightness} unit="%" onChange={setBrightness} />
         <Slider label="Contraste" id="contrast" min={50} max={150} value={contrast} unit="%" onChange={setContrast} />
       </div>
 
-      {/* Texte */}
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         <p style={{ fontSize: 11, color: "#666", letterSpacing: "0.05em", textTransform: "uppercase", margin: 0 }}>Texte</p>
         <input type="text" placeholder="Ton prenom, ta phrase..." value={textOverlay}
           onChange={(e) => setTextOverlay(e.target.value)} maxLength={40}
           style={{ width: "100%", background: "#1a1a1a", border: "0.5px solid #333", borderRadius: 99, padding: "10px 16px", color: "#fff", fontSize: 14, boxSizing: "border-box", outline: "none" }} />
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)}
-            style={{ width: 36, height: 36, padding: 2, border: "none", borderRadius: 99, cursor: "pointer", background: "none" }} />
-          <div style={{ flex: 1 }}>
-            <Slider label="Taille texte" id="textSize" min={16} max={80} value={textSize} unit="px" onChange={setTextSize} />
-          </div>
-        </div>
+        <Slider label="Taille texte" id="textSize" min={16} max={80} value={textSize} unit="px" onChange={setTextSize} />
+        <ColorPicker value={textColor} onChange={setTextColor} />
       </div>
 
     </div>
