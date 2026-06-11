@@ -1,12 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// GET /api/frames — liste publique ou filtrée
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
   const { searchParams } = new URL(req.url);
   const ownerId = searchParams.get("owner_id");
-  const category = searchParams.get("category");
   const page = parseInt(searchParams.get("page") ?? "1");
   const limit = parseInt(searchParams.get("limit") ?? "20");
   const offset = (page - 1) * limit;
@@ -15,6 +13,7 @@ export async function GET(req: NextRequest) {
     .from("frames")
     .select("*, owner:profiles(id, full_name, email)", { count: "exact" })
     .eq("active", true)
+    .or("expires_at.is.null,expires_at.gt." + new Date().toISOString())
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -24,34 +23,32 @@ export async function GET(req: NextRequest) {
     query = query.eq("is_public", true);
   }
 
-  if (category) {
-    query = query.eq("category", category);
-  }
-
   const { data, error, count } = await query;
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ frames: data, total: count, page, limit });
 }
 
-// POST /api/frames — créer un cadre
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-  }
+  if (!user) return NextResponse.json({ error: "Non autorise" }, { status: 401 });
 
   const body = await req.json();
-  const { title, description, image_url, thumbnail_url, is_public, category, quota_limit } = body;
+  const { title, description, image_url, thumbnail_url, is_public, plan_id } = body;
 
   if (!title || !image_url) {
     return NextResponse.json({ error: "Titre et image requis" }, { status: 400 });
   }
+
+  const { data: plan } = await supabase
+    .from("plans")
+    .select("*")
+    .eq("id", plan_id)
+    .single();
+
+  const expires_at = plan?.duration_days
+    ? new Date(Date.now() + plan.duration_days * 86400000).toISOString()
+    : null;
 
   const { data, error } = await supabase
     .from("frames")
@@ -62,17 +59,15 @@ export async function POST(req: NextRequest) {
       image_url,
       thumbnail_url: thumbnail_url ?? image_url,
       is_public: is_public ?? true,
-      category,
-      quota_limit: is_public ? null : (quota_limit ?? 50),
       download_count: 0,
       active: true,
+      plan_id: plan_id ?? null,
+      expires_at,
+      has_watermark: plan?.has_watermark ?? true,
     })
     .select()
     .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ frame: data }, { status: 201 });
 }
