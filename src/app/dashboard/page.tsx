@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -29,7 +29,7 @@ export default function DashboardPage() {
   return (
     <main style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "sans-serif" }}>
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 40px", borderBottom: "0.5px solid #222" }}>
-        <Link href="/" style={{ fontWeight: 700, fontSize: 20, color: "#fff", textDecoration: "none" }}>🖼 J&apos;y Serai</Link>
+        <Link href="/"><img src="/jy_serai.png" alt="Jy Serai" style={{ height: 36 }} /></Link>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <span style={{ color: "#888", fontSize: 13 }}>{user?.user_metadata?.full_name ?? user?.email}</span>
           <button onClick={handleLogout} style={{ background: "transparent", border: "0.5px solid #333", color: "#aaa", padding: "7px 14px", borderRadius: 8, cursor: "pointer", fontSize: 13 }}>Déconnexion</button>
